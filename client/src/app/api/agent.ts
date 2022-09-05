@@ -1,6 +1,52 @@
-import axios, { AxiosResponse } from 'axios';
+import axios, { AxiosError, AxiosResponse } from 'axios';
+import { toast } from 'react-toastify';
+import { history } from '../..';
 
 axios.defaults.baseURL = 'http://localhost:5000/api/';
+
+const sleep = () => new Promise(resolve => setTimeout(resolve, 500));
+
+
+
+
+axios.interceptors.response.use(async response => {
+
+  await sleep();
+
+  return response
+}, (error: AxiosError) => {
+ const {data, status} = error.response!;
+ const dataAny = data as any;
+ switch (status) {
+  case 400:
+    if(dataAny.errors) {
+      const modelStateErrors: string[] = [];
+      for(const key in dataAny.errors) {
+        if(dataAny.errors[key]) {
+          modelStateErrors.push(dataAny.errors[key])
+        }
+      }
+      throw modelStateErrors.flat();
+
+    }
+    toast.error(dataAny.title);
+    break;
+  case 401:
+    toast.error(dataAny.title);
+    break;
+  case 500:
+      history.push({
+        pathname: '/server-error',
+        state:{error: dataAny}
+      });
+      toast.error(dataAny.title);
+    break; 
+  default:
+    break;
+ }
+
+  return Promise.reject(error.response);
+})
 
 const responseBody = (response: AxiosResponse) => response.data;
 
