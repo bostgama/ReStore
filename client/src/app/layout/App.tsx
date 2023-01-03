@@ -17,20 +17,21 @@ import { useStoreContext } from "../context/StoreContext";
 import { getCookie } from "../util/util";
 import agent from "../api/agent";
 import LoadingComponent from "./LoadingComponent";
+import CheckoutPage from "../checkout/CheckoutPage";
 
 function App() {
 
-  const {setBasket} = useStoreContext();
+  const { setBasket } = useStoreContext();
   const [loading, setLoading] = useState(true);
 
-  useEffect(()=> {
+  useEffect(() => {
     const buyerId = getCookie('buyerId');
 
-    if(buyerId) {
+    if (buyerId) {
       agent.Basket.get()
         .then(basket => setBasket(basket))
         .catch(error => console.log(error))
-        .finally(()=> setLoading(false));
+        .finally(() => setLoading(false));
     } else {
       setLoading(false);
     }
@@ -53,11 +54,11 @@ function App() {
     SetDarkMode(!darkMode);
   }
 
-  if(loading) return<LoadingComponent message='Initialising app.' />
+  if (loading) return <LoadingComponent message='Initialising app.' />
 
   return (
     <ThemeProvider theme={theme}>
-      <ToastContainer position='bottom-right' hideProgressBar/>
+      <ToastContainer position='bottom-right' hideProgressBar />
       <CssBaseline />
       <Header darkMode={darkMode} handleThemeChange={handleThemeChange} />
       <Container>
@@ -69,6 +70,7 @@ function App() {
           <Route path='/contact' component={ContactPage} />
           <Route path='/server-error' component={ServerError} />
           <Route path='/basket' component={BasketPage} />
+          <Route path='/checkout' component={CheckoutPage} />
           <Route component={NotFound} />
         </Switch>
       </Container>
